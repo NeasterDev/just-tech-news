@@ -1,6 +1,8 @@
 const router = require('express').Router();
-const { Post, User, Vote } = require('../../models');
+const { Post, User, Vote, Comment } = require('../../models');
 const sequelize = require('../../config/connection');
+
+// /posts
 
 // get all users
 router.get('/', (req, res) => {
@@ -11,6 +13,14 @@ router.get('/', (req, res) => {
     ],
     order: [['created_at', 'DESC']],
     include: [
+      {
+        model: Comment,
+        attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+        include: {
+          model: User,
+          attributes: ['username']
+        }
+      },
       {
         model: User,
         attributes: ['username']
@@ -35,6 +45,14 @@ router.get('/:id', (req, res) => {
     ],
     include: [
       {
+        model: Comment,
+        attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+        include: {
+          model: User,
+          attributes: ['username']
+        }
+      },
+      {
         model: User,
         attributes: ['username']
       }
@@ -54,7 +72,7 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
+  // expects {"title": "Taskmaster goes public!", "post_url": "https://taskmaster.com/press", "user_id": 1}
   Post.create({
     title: req.body.title,
     post_url: req.body.post_url,
